@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" href="data:">
+
+  <body>
+    <h1>Original Image</h1>
+    <video id="videoElement" playsinline x-style="display:none"></video>
+    <canvas id="canvas"></canvas>
+<div class="ctrl">
+  <label><input type="checkbox" id="showimg" checked>show original image</label>
+  <!--<label><input type="checkbox" id="mirrormode" checked>mirror mode</label>-->
+  <label><input type="checkbox" id="backcameramode">backcamera mode</label><br>
+</div>
+
+  </body>
+</html>
+
+
+<script type="module">
+import { init, filterImage } from "./filter.js";
+import { getVertexShaderSource, getFragmentShaderSource } from "./grayscale.js";
+import { Camera } from "https://code4fukui.github.io/Camera/Camera.js";
+
+init(canvas, getVertexShaderSource(), getFragmentShaderSource());
+
+const camera = new Camera(videoElement, {
+  onFrame: async () => {
+    const img = videoElement;
+    const w = img.videoWidth;
+    const h = img.videoHeight;
+    if (w != canvas.width || h != canvas.height) {
+      canvas.width = w;
+      canvas.height = h
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+    }
+    filterImage(canvas, img);
+  },
+  width: 1280,
+  height: 720,
+  backcamera: backcameramode.checked,
+});
+camera.start();
+backcameramode.onchange = () => camera.flip();
+
+</script>

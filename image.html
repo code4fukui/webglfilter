@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" href="data:">
+<body>
+
+<main>
+  <div>
+    <h2>Original Image</h2><br>
+    <img id=originalImage src="image.jpg" height="320" width="480">
+  </div>
+  <div>
+    <h2>Filtered Image</h2><br>
+    <canvas id=canvas width="480" height="320"></canvas><br>
+    <select id="selfilters" style="margin-bottom: 5px;"></select><br>
+  </div>
+</main>
+
+<script type="module">
+import { init, filterImage } from "./filter.js";
+import { getVertexShaderSource, getFragmentShaderSource, filters } from "./filters.js";
+
+for (const filter in filters) {
+  const option = document.createElement("option");
+  option.textContent = filter;
+  selfilters.appendChild(option);
+}
+selfilters.oninput = () => {
+  const kernel = filters[selfilters.value];
+  init(canvas, getVertexShaderSource(), getFragmentShaderSource(kernel));
+  filterImage(canvas, originalImage);
+};
+selfilters.oninput();
+</script>
+
+<style>
+h2 {
+  display: inline-block;
+}
+main > div {
+  display: inline-block;
+  vertical-align: top;
+}
+</style>
+
+</body>
+</html>

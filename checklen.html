@@ -1,0 +1,45 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><link rel="icon" href="data:">
+
+  <body>
+    <h1>Original Image</h1>
+    <video id="videoElement" playsinline></video>
+    <canvas id="canvas"></canvas>
+    <canvas id="canvas2"></canvas>
+<div class="ctrl">
+  <label><input type="checkbox" id="showimg" checked>show original image</label>
+  <!--<label><input type="checkbox" id="mirrormode" checked>mirror mode</label>-->
+  <label><input type="checkbox" id="backcameramode">backcamera mode</label><br>
+</div>
+
+  </body>
+</html>
+
+
+<script type="module">
+import { init, filterImage } from "./filter.js";
+import { getVertexShaderSource, getFragmentShaderSource } from "./checklen.js";
+import { startFilteredCamera } from "./startFilteredCamera.js";
+
+const g2 = canvas2.getContext("2d");
+
+init(canvas, getVertexShaderSource(), getFragmentShaderSource());
+startFilteredCamera(videoElement, canvas, filterImage, true, (gl) => {
+  const w = canvas2.width = videoElement.videoWidth;
+  const h = canvas2.height = videoElement.videoHeight;
+  const d = new Uint8Array(h * 4);
+  gl.readPixels(0, 0, 1, h, gl.RGBA, gl.UNSIGNED_BYTE, d);
+  const get = (y) => {
+    const idx = y * 4;
+    return d[idx] + (d[idx + 1] << 8);
+  };
+  g2.clearRect(0, 0, w, h);
+  g2.strokeStyle = "red";
+  g2.beginPath();
+  g2.moveTo(get(0), h - 1);
+  for (let i = 1; i < h; i++) {
+    g2.lineTo(get(i), h - 1 - i);
+  }
+  g2.stroke();
+});
+
+</script>
